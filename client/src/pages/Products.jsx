@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import ProductCard from '../components/ProductCard'
