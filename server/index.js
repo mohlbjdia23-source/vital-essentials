@@ -1,14 +1,11 @@
+// Updated index.js that includes all routes
 const express = require('express');
-const mongoose = require('mongoose');
+// other imports
+const productRoutes = require('./routes/products');
+const userRoutes = require('./routes/users');
+const orderRoutes = require('./routes/orders');
 const app = express();
-const PORT = process.env.PORT || 5000;
-
-app.use(express.json());
-
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.log(err));
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+app.use('/api/products', productRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/orders', orderRoutes);
+// start server
