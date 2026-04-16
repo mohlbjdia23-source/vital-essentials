@@ -45,13 +45,14 @@ export default function Checkout({ onBack }) {
     setError(null)
 
     try {
-      // Create payment intent on server
+      // Create payment intent on server – server calculates the verified total
       const { data } = await axios.post('/api/checkout/create-payment-intent', {
         items: items.map((i) => ({ productId: i._id, quantity: i.quantity })),
+        customer: { name: form.name, email: form.email },
         shippingAddress: {
           name: form.name,
-          email: form.email,
           address: form.address,
+          line1: form.address,
           city: form.city,
           state: form.state,
           zip: form.zip,
@@ -87,22 +88,36 @@ export default function Checkout({ onBack }) {
       }
 
       if (paymentIntent.status === 'succeeded') {
+        // Notify server to finalise the order (idempotent – webhook will also handle this)
+        let confirmedOrder = null
+        try {
+          const { data: confirmData } = await axios.post('/api/checkout/confirm-payment', {
+            paymentIntentId: paymentIntent.id,
+          })
+          confirmedOrder = confirmData.order
+        } catch {
+          // Non-blocking; webhook will handle the state transition
+        }
+
         clearCart()
         setCartOpen(false)
         navigate('/order-confirmation', {
           state: {
             orderDetails: {
+              _id: confirmedOrder?._id,
               name: form.name,
               email: form.email,
               paymentIntentId: paymentIntent.id,
-              total: cartTotal,
+              total: data.totalPrice ?? cartTotal,
+              subtotal: data.subtotal,
+              shippingCost: data.shippingCost,
               items: items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
             },
           },
         })
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Payment failed. Please try again.')
+      setError(err.response?.data?.errors?.join(', ') || err.response?.data?.error || err.message || 'Payment failed. Please try again.')
     } finally {
       setLoading(false)
     }

@@ -5,12 +5,23 @@ import { useCart } from '../context/CartContext'
 export default function ProductCard({ product }) {
   const { addToCart } = useCart()
 
-  const inStock = product.stock == null || product.stock > 0
+  const inStock = product.stockStatus !== 'unavailable' && (product.stock == null || product.stock > 0)
+  const isLowStock = product.stockStatus === 'low_stock' || (product.stock != null && product.stock > 0 && product.stock <= 5)
+  const isBackordered = product.stockStatus === 'backordered'
 
   function handleAddToCart(e) {
     e.preventDefault()
     if (inStock) addToCart(product, 1)
   }
+
+  function stockBadge() {
+    if (!inStock) return { label: 'Out of Stock', cls: 'bg-red-500' }
+    if (isLowStock) return { label: `Only ${product.stock} left`, cls: 'bg-amber-400' }
+    if (isBackordered) return { label: 'Backordered', cls: 'bg-blue-400' }
+    return null
+  }
+
+  const badge = stockBadge()
 
   return (
     <Link
@@ -32,15 +43,9 @@ export default function ProductCard({ product }) {
             </svg>
           </div>
         )}
-        {/* Stock badge */}
-        {!inStock && (
-          <span className="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-            Out of Stock
-          </span>
-        )}
-        {inStock && product.stock != null && product.stock <= 5 && (
-          <span className="absolute top-2 right-2 bg-amber-400 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-            Only {product.stock} left
+        {badge && (
+          <span className={`absolute top-2 right-2 ${badge.cls} text-white text-xs font-semibold px-2 py-0.5 rounded-full`}>
+            {badge.label}
           </span>
         )}
       </div>
@@ -56,9 +61,16 @@ export default function ProductCard({ product }) {
           </p>
         )}
         <div className="flex items-center justify-between mt-auto pt-2">
-          <span className="text-lg font-bold text-emerald-700">
-            ${Number(product.price).toFixed(2)}
-          </span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-lg font-bold text-emerald-700">
+              ${Number(product.price).toFixed(2)}
+            </span>
+            {product.compareAtPrice && product.compareAtPrice > product.price && (
+              <span className="text-xs text-gray-400 line-through">
+                ${Number(product.compareAtPrice).toFixed(2)}
+              </span>
+            )}
+          </div>
           <button
             onClick={handleAddToCart}
             disabled={!inStock}

@@ -44,6 +44,12 @@ export default function Header() {
             >
               Products
             </Link>
+            <Link
+              to="/orders"
+              className="text-gray-600 hover:text-emerald-600 font-medium transition-colors"
+            >
+              My Orders
+            </Link>
           </nav>
 
           {/* Search Bar */}
@@ -121,6 +127,13 @@ export default function Header() {
                 className="text-gray-700 hover:text-emerald-600 font-medium px-2"
               >
                 Products
+              </Link>
+              <Link
+                to="/orders"
+                onClick={() => setMenuOpen(false)}
+                className="text-gray-700 hover:text-emerald-600 font-medium px-2"
+              >
+                My Orders
               </Link>
             </nav>
             <form onSubmit={handleSearch} className="mt-3 px-2">

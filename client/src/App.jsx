@@ -8,6 +8,7 @@ import Home from './pages/Home'
 import Products from './pages/Products'
 import ProductDetail from './pages/ProductDetail'
 import OrderConfirmation from './pages/OrderConfirmation'
+import Orders from './pages/Orders'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements } from '@stripe/react-stripe-js'
 
@@ -26,6 +27,7 @@ function App() {
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/:id" element={<ProductDetail />} />
                 <Route path="/order-confirmation" element={<OrderConfirmation />} />
+                <Route path="/orders" element={<Orders />} />
               </Routes>
             </main>
             <Footer />

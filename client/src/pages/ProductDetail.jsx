@@ -47,7 +47,7 @@ export default function ProductDetail() {
     setCartOpen(true)
   }
 
-  const inStock = product?.stock == null || product?.stock > 0
+  const inStock = product?.stockStatus !== 'unavailable' && (product?.stock == null || product?.stock > 0)
 
   if (loading) {
     return (
@@ -123,9 +123,16 @@ export default function ProductDetail() {
           <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3 leading-snug">
             {product.name}
           </h1>
-          <p className="text-3xl font-bold text-emerald-700 mb-4">
-            ${Number(product.price).toFixed(2)}
-          </p>
+          <div className="flex items-baseline gap-3 mb-4">
+            <p className="text-3xl font-bold text-emerald-700">
+              ${Number(product.price).toFixed(2)}
+            </p>
+            {product.compareAtPrice && product.compareAtPrice > product.price && (
+              <p className="text-lg text-gray-400 line-through">
+                ${Number(product.compareAtPrice).toFixed(2)}
+              </p>
+            )}
+          </div>
 
           {/* Stock status */}
           <div className="flex items-center gap-2 mb-5">
