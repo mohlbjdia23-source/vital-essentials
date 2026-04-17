@@ -41,7 +41,9 @@ router.post('/items', async (req, res) => {
   if (!filter) return res.status(400).json({ error: 'Session ID or auth token required' });
 
   const { productId, quantity = 1 } = req.body;
-  if (!productId) return res.status(400).json({ error: 'productId is required' });
+  if (!productId || typeof productId !== 'string') return res.status(400).json({ error: 'productId is required' });
+  // Validate ObjectId format to prevent NoSQL injection
+  if (!/^[a-f\d]{24}$/i.test(productId)) return res.status(400).json({ error: 'Invalid productId' });
   const qty = parseInt(quantity, 10);
   if (!qty || qty < 1) return res.status(400).json({ error: 'quantity must be a positive integer' });
 
@@ -81,6 +83,9 @@ router.put('/items/:productId', async (req, res) => {
   const filter = cartFilter(req);
   if (!filter) return res.status(400).json({ error: 'Session ID or auth token required' });
 
+  const { productId } = req.params;
+  if (!/^[a-f\d]{24}$/i.test(productId)) return res.status(400).json({ error: 'Invalid productId' });
+
   const { quantity } = req.body;
   const qty = parseInt(quantity, 10);
   if (qty == null || isNaN(qty) || qty < 0) {
@@ -110,6 +115,9 @@ router.put('/items/:productId', async (req, res) => {
 router.delete('/items/:productId', async (req, res) => {
   const filter = cartFilter(req);
   if (!filter) return res.status(400).json({ error: 'Session ID or auth token required' });
+
+  const { productId } = req.params;
+  if (!/^[a-f\d]{24}$/i.test(productId)) return res.status(400).json({ error: 'Invalid productId' });
 
   try {
     const cart = await Cart.findOne(filter);

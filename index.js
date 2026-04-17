@@ -65,7 +65,7 @@ if (process.env.NODE_ENV === 'production') {
     legacyHeaders: false,
   });
   app.use(staticLimiter, express.static(clientBuild));
-  app.get('*', (_req, res) => res.sendFile(path.join(clientBuild, 'index.html')));
+  app.get('*', staticLimiter, (_req, res) => res.sendFile(path.join(clientBuild, 'index.html')));
 } else {
   app.get('/', (_req, res) =>
     res.json({ message: 'Vital Essentials API is running!' })

@@ -8,7 +8,7 @@ const { isValidEmail } = require('../lib/validation');
 // ─── GET /api/orders  – admin sees all; authenticated user sees own orders ──
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const filter = req.user.role === 'admin' ? {} : { userId: req.user.id };
+    const filter = req.user.role === 'admin' ? {} : { userId: String(req.user.id) };
 
     const {
       page = 1,

@@ -25,17 +25,9 @@ router.get('/', async (req, res) => {
     }
 
     if (search && typeof search === 'string') {
-      const sanitizedSearch = search.slice(0, 200);
-      // Escape regex special chars for safe fallback search
-      const escaped = sanitizedSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      try {
-        filter.$text = { $search: sanitizedSearch };
-      } catch {
-        filter.$or = [
-          { name: { $regex: escaped, $options: 'i' } },
-          { description: { $regex: escaped, $options: 'i' } },
-        ];
-      }
+      const sanitizedSearch = search.slice(0, 200).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // $text uses a full-text index – the search string is a literal term, not an operator
+      filter.$text = { $search: sanitizedSearch };
     }
 
     const pageNum = Math.max(1, parseInt(page, 10));
