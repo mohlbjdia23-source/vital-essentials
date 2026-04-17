@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import ProductCard from '../components/ProductCard'
 
-const CATEGORIES = ['All', 'Skincare', 'Electronics', 'Home Goods', 'Wellness', 'Fitness', 'Beauty', 'Other']
+const CATEGORIES = ['All', 'Skincare', 'Electronics', 'Home Goods', 'Wellness', 'Fitness', 'Beauty', 'Nutrition', 'Kitchen', 'Pet Care', 'Other']
 const SORT_OPTIONS = [
   { value: 'createdAt:desc', label: 'Newest' },
   { value: 'price:asc', label: 'Price: Low to High' },

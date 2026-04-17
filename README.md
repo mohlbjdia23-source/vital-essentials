@@ -120,7 +120,7 @@ Visit **http://localhost:3000** for the storefront.
 
 ## Database Seeding
 
-The seed script creates 24 realistic products across 6 categories and creates a default admin user.
+The seed script creates **100 products** across 9 categories and creates a default admin user.
 
 ```bash
 node seed.js

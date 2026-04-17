@@ -10,6 +10,9 @@ const CATEGORIES = [
   { name: 'Wellness', emoji: '💊', bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-700' },
   { name: 'Fitness', emoji: '🏋️', bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700' },
   { name: 'Beauty', emoji: '✨', bg: 'bg-pink-50', border: 'border-pink-200', text: 'text-pink-700' },
+  { name: 'Nutrition', emoji: '🥗', bg: 'bg-lime-50', border: 'border-lime-200', text: 'text-lime-700' },
+  { name: 'Kitchen', emoji: '🍳', bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700' },
+  { name: 'Pet Care', emoji: '🐾', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' },
 ]
 
 function SkeletonCard() {

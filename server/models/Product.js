@@ -11,7 +11,7 @@ const productSchema = new mongoose.Schema(
     image: { type: String },              // legacy / shorthand alias → first of images
     category: {
       type: String,
-      enum: ['Skincare', 'Electronics', 'Home Goods', 'Wellness', 'Fitness', 'Beauty', 'Other'],
+      enum: ['Skincare', 'Electronics', 'Home Goods', 'Wellness', 'Fitness', 'Beauty', 'Nutrition', 'Kitchen', 'Pet Care', 'Other'],
       default: 'Other',
     },
     tags: [String],
