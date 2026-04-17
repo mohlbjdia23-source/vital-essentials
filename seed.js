@@ -143,6 +143,78 @@ const products = [
     supplier: { name: 'aliexpress', productId: 'AE-FI-004', cost: 3.50, shippingProfile: 'ePacket', processingDays: 2, syncStatus: 'synced' },
   },
 
+  // ── Home Goods – Cleaning ─────────────────────────────────────────────────
+  {
+    name: 'Electric Spin Scrubber',
+    description: 'Cordless power scrubber with 3 interchangeable brush heads for bathroom tiles, tub, grout and kitchen surfaces. 360° rotation, rechargeable via USB-C, extendable handle up to 1.2m.',
+    price: 29.99, category: 'Home Goods', stock: 130,
+    images: ['https://images.unsplash.com/photo-1563453392212-326f5e854473?w=800'],
+    supplier: { name: 'aliexpress', productId: 'AE-HG-005', cost: 9.00, shippingProfile: 'Standard', processingDays: 4, syncStatus: 'synced' },
+  },
+  {
+    name: 'Cordless Handheld Mini Vacuum',
+    description: 'Portable cordless vacuum with 6000Pa suction, HEPA filter, and 25-minute battery life. Lightweight at 0.8 kg – perfect for car interiors, desks and stairs.',
+    price: 44.99, category: 'Home Goods', stock: 95,
+    images: ['https://images.unsplash.com/photo-1558618047-3c8a0e197be8?w=800'],
+    supplier: { name: 'aliexpress', productId: 'AE-HG-006', cost: 14.00, shippingProfile: 'Standard', processingDays: 5, syncStatus: 'synced' },
+  },
+  {
+    name: 'Lint Remover – Electric Fabric Shaver',
+    description: 'Rechargeable fabric shaver with stainless-steel floating blades and large lint catcher. Removes pills from sweaters, sofas and blankets without snagging.',
+    price: 19.99, category: 'Home Goods', stock: 200,
+    images: ['https://images.unsplash.com/photo-1619451334792-150fd785ee74?w=800'],
+    supplier: { name: 'aliexpress', productId: 'AE-HG-007', cost: 5.50, shippingProfile: 'ePacket', processingDays: 3, syncStatus: 'synced' },
+  },
+  {
+    name: 'Electric Window Cleaner & Squeegee Vacuum',
+    description: 'Cordless window vacuum with powerful suction to streak-free dry glass in one pass. Includes spray bottle and two microfibre cleaning pads.',
+    price: 34.99, category: 'Home Goods', stock: 80,
+    images: ['https://images.unsplash.com/photo-1527515545081-5db817172677?w=800'],
+    supplier: { name: 'aliexpress', productId: 'AE-HG-008', cost: 10.50, shippingProfile: 'Standard', processingDays: 4, syncStatus: 'synced' },
+  },
+  {
+    name: 'Microfiber Cleaning Cloth Set (12-Pack)',
+    description: 'Ultra-soft 300 GSM microfibre cloths that trap dust without scratching. Machine washable, reusable 500+ times. Ideal for glass, stainless steel and car detailing.',
+    price: 14.99, category: 'Home Goods', stock: 350,
+    images: ['https://images.unsplash.com/photo-1583947582886-f1530a5c2547?w=800'],
+    supplier: { name: 'aliexpress', productId: 'AE-HG-009', cost: 3.50, shippingProfile: 'ePacket', processingDays: 2, syncStatus: 'synced' },
+  },
+  {
+    name: 'Drain Hair Catcher – Sink & Shower Filter (4-Pack)',
+    description: 'Stainless-steel mesh drain protectors that catch hair, soap scum and debris before they clog your pipes. Fits most standard 1.5–2 inch drains.',
+    price: 9.99, category: 'Home Goods', stock: 500,
+    images: ['https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=800'],
+    supplier: { name: 'aliexpress', productId: 'AE-HG-010', cost: 2.00, shippingProfile: 'ePacket', processingDays: 2, syncStatus: 'synced' },
+  },
+  {
+    name: 'Drill Brush Cleaning Kit (5-Piece)',
+    description: 'Power-scrubber attachment set for any standard drill. Includes flat, round and angle brushes for tile grout, bathtubs, wheels and carpet stains.',
+    price: 17.99, category: 'Home Goods', stock: 160,
+    images: ['https://images.unsplash.com/photo-1504148455328-c376907d081c?w=800'],
+    supplier: { name: 'aliexpress', productId: 'AE-HG-011', cost: 4.50, shippingProfile: 'ePacket', processingDays: 3, syncStatus: 'synced' },
+  },
+  {
+    name: 'Multi-Surface Cleaning Brush Set (6-Piece)',
+    description: 'Ergonomic set of 6 cleaning brushes with nylon bristles for bottles, grout, corners, keyboards and cookware. Non-scratch bristles with comfortable grip handles.',
+    price: 22.99, category: 'Home Goods', stock: 175,
+    images: ['https://images.unsplash.com/photo-1563453392212-326f5e854473?w=800'],
+    supplier: { name: 'aliexpress', productId: 'AE-HG-012', cost: 6.00, shippingProfile: 'ePacket', processingDays: 3, syncStatus: 'synced' },
+  },
+  {
+    name: 'Silicone Toilet Brush Set',
+    description: 'Modern wall-mounted silicone toilet brush with slim holder. Hygienic quick-dry design with flexible bristles that reach under the rim. No dripping, no odours.',
+    price: 18.99, category: 'Home Goods', stock: 220,
+    images: ['https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800'],
+    supplier: { name: 'aliexpress', productId: 'AE-HG-013', cost: 5.00, shippingProfile: 'ePacket', processingDays: 3, syncStatus: 'synced' },
+  },
+  {
+    name: 'Reusable Cleaning Gel (Universal Dust Cleaner)',
+    description: 'Putty-like cleaning gel that gets into every vent, keyboard gap and car air duct to lift dust, crumbs and debris without residue. Reusable up to 50 times per piece.',
+    price: 12.99, category: 'Home Goods', stock: 400,
+    images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800'],
+    supplier: { name: 'aliexpress', productId: 'AE-HG-014', cost: 2.50, shippingProfile: 'ePacket', processingDays: 2, syncStatus: 'synced' },
+  },
+
   // ── Beauty ────────────────────────────────────────────────────────────────
   {
     name: 'LED Face Mask Therapy Device',
