@@ -124,8 +124,8 @@ async function refreshTracking(orderOrId) {
       await order.save();
     }
   } catch (err) {
-    // Non-fatal – tracking lookup can fail transiently
-    console.error(`Tracking refresh failed for order ${order._id}:`, err.message);
+    // Avoid logging raw error messages from third-party APIs to prevent log injection
+    console.error('Tracking refresh failed for order', String(order._id));
   }
 
   return order;

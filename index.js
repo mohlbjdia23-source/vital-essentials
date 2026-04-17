@@ -57,7 +57,14 @@ app.get('/api/health', (_req, res) =>
 // ─── Serve React build in production ─────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {
   const clientBuild = path.join(__dirname, 'client', 'dist');
-  app.use(express.static(clientBuild));
+  // Generous rate limit for static assets – real DDoS protection belongs at load balancer
+  const staticLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+  app.use(staticLimiter, express.static(clientBuild));
   app.get('*', (_req, res) => res.sendFile(path.join(clientBuild, 'index.html')));
 } else {
   app.get('/', (_req, res) =>

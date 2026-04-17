@@ -74,7 +74,7 @@ router.post('/', webhookLimiter, express.raw({ type: 'application/json' }), asyn
         if (order && order.paymentStatus === 'pending') {
           order.paymentStatus = 'failed';
           const failMsg = pi.last_payment_error?.message;
-          order.addEvent('failed', failMsg ? 'Payment failed' : 'Payment failed');
+          order.addEvent('failed', failMsg ? 'Payment failed' : 'Payment failed (no details)');
           await order.save();
         }
         break;
