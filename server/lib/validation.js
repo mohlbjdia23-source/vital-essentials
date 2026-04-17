@@ -3,12 +3,22 @@
  * Returns { valid: boolean, errors: string[] }
  */
 
+// RFC-5321 simplified – deliberately simple to avoid ReDoS
+// Checks for at least one non-@ char, @, domain with a dot
+const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+function isValidEmail(email) {
+  if (typeof email !== 'string') return false;
+  if (email.length > 254) return false;
+  return EMAIL_RE.test(email);
+}
+
 function validateCheckout({ customer, shippingAddress, items }) {
   const errors = [];
 
   if (!customer?.name?.trim()) errors.push('Customer name is required');
   if (!customer?.email?.trim()) errors.push('Customer email is required');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer?.email || '')) {
+  if (!isValidEmail(customer?.email || '')) {
     errors.push('Customer email is invalid');
   }
 
@@ -41,9 +51,9 @@ function validateUserRegistration({ name, email, password }) {
   const errors = [];
   if (!name?.trim()) errors.push('Name is required');
   if (!email?.trim()) errors.push('Email is required');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email || '')) errors.push('Email is invalid');
+  if (!isValidEmail(email || '')) errors.push('Email is invalid');
   if (!password || password.length < 8) errors.push('Password must be at least 8 characters');
   return { valid: errors.length === 0, errors };
 }
 
-module.exports = { validateCheckout, validateProduct, validateUserRegistration };
+module.exports = { validateCheckout, validateProduct, validateUserRegistration, isValidEmail };

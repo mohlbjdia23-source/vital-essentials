@@ -35,10 +35,20 @@ async function calcServerTotal(items) {
 
   for (const item of items) {
     const product = productMap[item.productId];
-    if (!product) throw { status: 400, message: `Product ${item.productId} not found` };
-    if (!product.isActive) throw { status: 400, message: `Product "${product.name}" is no longer available` };
+    if (!product) {
+      const err = new Error(`Product ${item.productId} not found`);
+      err.status = 400;
+      throw err;
+    }
+    if (!product.isActive) {
+      const err = new Error(`Product "${product.name}" is no longer available`);
+      err.status = 400;
+      throw err;
+    }
     if (product.stock < item.quantity) {
-      throw { status: 400, message: `Insufficient stock for "${product.name}"` };
+      const err = new Error(`Insufficient stock for "${product.name}"`);
+      err.status = 400;
+      throw err;
     }
 
     const unitPrice = product.price;
@@ -156,8 +166,12 @@ router.post('/create-payment-intent', optionalAuth, async (req, res) => {
 
 router.post('/confirm-payment', optionalAuth, async (req, res) => {
   const { paymentIntentId } = req.body;
-  if (!paymentIntentId) {
+  if (!paymentIntentId || typeof paymentIntentId !== 'string') {
     return res.status(400).json({ error: 'paymentIntentId is required' });
+  }
+  // Stripe payment intent IDs always start with 'pi_'
+  if (!paymentIntentId.startsWith('pi_')) {
+    return res.status(400).json({ error: 'Invalid paymentIntentId format' });
   }
 
   try {

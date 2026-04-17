@@ -3,6 +3,7 @@ const router = express.Router();
 const Order = require('../models/Order');
 const { requireAuth, requireAdmin, optionalAuth } = require('../middleware/auth');
 const { refreshTracking } = require('../lib/fulfillment');
+const { isValidEmail } = require('../lib/validation');
 
 // ─── GET /api/orders  – admin sees all; authenticated user sees own orders ──
 router.get('/', requireAuth, async (req, res) => {
@@ -16,8 +17,11 @@ router.get('/', requireAuth, async (req, res) => {
       paymentStatus,
     } = req.query;
 
-    if (fulfillmentStatus) filter.fulfillmentStatus = fulfillmentStatus;
-    if (paymentStatus) filter.paymentStatus = paymentStatus;
+    // Whitelist status values to prevent injection
+    const validFulfillment = ['pending','awaiting_supplier','submitted','processing','shipped','delivered','failed','cancelled','refunded'];
+    const validPayment = ['pending','paid','failed','refunded','partially_refunded'];
+    if (fulfillmentStatus && validFulfillment.includes(fulfillmentStatus)) filter.fulfillmentStatus = fulfillmentStatus;
+    if (paymentStatus && validPayment.includes(paymentStatus)) filter.paymentStatus = paymentStatus;
 
     const pageNum = Math.max(1, parseInt(page, 10));
     const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
@@ -36,8 +40,15 @@ router.get('/', requireAuth, async (req, res) => {
 
 // ─── GET /api/orders/by-email/:email  – guest order lookup ────────────────
 router.get('/by-email/:email', async (req, res) => {
+  const email = req.params.email;
+
+  // Validate email before using in DB query to prevent NoSQL injection
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ message: 'Invalid email address' });
+  }
+
   try {
-    const orders = await Order.find({ 'customer.email': req.params.email })
+    const orders = await Order.find({ 'customer.email': email.toLowerCase() })
       .sort({ createdAt: -1 })
       .limit(10);
     res.json(orders);
@@ -91,16 +102,19 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
 
     const { fulfillmentStatus, paymentStatus, adminNote, trackingNumber, carrier } = req.body;
 
-    if (fulfillmentStatus) {
+    const validFulfillment = ['pending','awaiting_supplier','submitted','processing','shipped','delivered','failed','cancelled','refunded'];
+    const validPayment = ['pending','paid','failed','refunded','partially_refunded'];
+
+    if (fulfillmentStatus && validFulfillment.includes(fulfillmentStatus)) {
       order.fulfillmentStatus = fulfillmentStatus;
-      order.addEvent(fulfillmentStatus, `Admin updated status to ${fulfillmentStatus}`);
+      order.addEvent(fulfillmentStatus, 'Admin updated status');
     }
-    if (paymentStatus) order.paymentStatus = paymentStatus;
-    if (adminNote !== undefined) order.adminNote = adminNote;
-    if (trackingNumber) {
-      order.supplierTrackingNumber = trackingNumber;
-      order.supplierCarrier = carrier || order.supplierCarrier;
-      order.addEvent('shipped', `Tracking set by admin: ${trackingNumber}`);
+    if (paymentStatus && validPayment.includes(paymentStatus)) order.paymentStatus = paymentStatus;
+    if (typeof adminNote === 'string') order.adminNote = adminNote.slice(0, 1000);
+    if (trackingNumber && typeof trackingNumber === 'string') {
+      order.supplierTrackingNumber = trackingNumber.slice(0, 100);
+      order.supplierCarrier = carrier && typeof carrier === 'string' ? carrier.slice(0, 100) : order.supplierCarrier;
+      order.addEvent('shipped', 'Tracking set by admin');
       if (order.fulfillmentStatus !== 'shipped') order.fulfillmentStatus = 'shipped';
     }
 

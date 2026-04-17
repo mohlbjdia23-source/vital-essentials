@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
-const { requireAuth, requireAdmin, optionalAuth } = require('../middleware/auth');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 const { validateProduct } = require('../lib/validation');
+
+const VALID_CATEGORIES = ['Skincare', 'Electronics', 'Home Goods', 'Wellness', 'Fitness', 'Beauty', 'Other'];
 
 // ─── GET /api/products  – public, paginated, filterable ────────────────────
 router.get('/', async (req, res) => {
@@ -18,18 +20,20 @@ router.get('/', async (req, res) => {
 
     const filter = { isActive: true };
 
-    if (category && category !== 'All') {
+    if (category && category !== 'All' && VALID_CATEGORIES.includes(category)) {
       filter.category = category;
     }
 
-    if (search) {
-      // Use text index if available, fall back to regex
+    if (search && typeof search === 'string') {
+      const sanitizedSearch = search.slice(0, 200);
+      // Escape regex special chars for safe fallback search
+      const escaped = sanitizedSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       try {
-        filter.$text = { $search: search };
+        filter.$text = { $search: sanitizedSearch };
       } catch {
         filter.$or = [
-          { name: { $regex: search, $options: 'i' } },
-          { description: { $regex: search, $options: 'i' } },
+          { name: { $regex: escaped, $options: 'i' } },
+          { description: { $regex: escaped, $options: 'i' } },
         ];
       }
     }
@@ -41,19 +45,11 @@ router.get('/', async (req, res) => {
     const sortField = ['price', 'name', 'createdAt', 'stock'].includes(sort) ? sort : 'createdAt';
 
     const [products, total] = await Promise.all([
-      Product.find(filter)
-        .sort({ [sortField]: sortOrder })
-        .skip(skip)
-        .limit(limitNum),
+      Product.find(filter).sort({ [sortField]: sortOrder }).skip(skip).limit(limitNum),
       Product.countDocuments(filter),
     ]);
 
-    res.json({
-      products,
-      total,
-      page: pageNum,
-      totalPages: Math.ceil(total / limitNum),
-    });
+    res.json({ products, total, page: pageNum, totalPages: Math.ceil(total / limitNum) });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -87,7 +83,7 @@ router.post('/', requireAuth, requireAdmin, async (req, res) => {
       image: req.body.image,
       images: req.body.images,
       stock: req.body.stock,
-      category: req.body.category,
+      category: VALID_CATEGORIES.includes(req.body.category) ? req.body.category : 'Other',
       tags: req.body.tags,
       supplier: req.body.supplier,
       isActive: req.body.isActive !== false,
@@ -112,6 +108,9 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
     updatableFields.forEach((field) => {
       if (req.body[field] !== undefined) product[field] = req.body[field];
     });
+    if (req.body.category && !VALID_CATEGORIES.includes(req.body.category)) {
+      product.category = 'Other';
+    }
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);

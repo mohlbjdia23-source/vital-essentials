@@ -36,15 +36,17 @@ router.use(requireAuth, requireAdmin);
  */
 router.post('/products/import', async (req, res) => {
   const { supplierName = 'aliexpress', supplierProductId, price, category } = req.body;
-  if (!supplierProductId) return res.status(400).json({ error: 'supplierProductId is required' });
+  if (!supplierProductId || typeof supplierProductId !== 'string') {
+    return res.status(400).json({ error: 'supplierProductId is required and must be a string' });
+  }
   if (!price || isNaN(price)) return res.status(400).json({ error: 'retail price is required' });
 
   try {
     const adapter = getSupplier(supplierName);
     const raw = await adapter.getProduct(supplierProductId);
 
-    // Check if already imported
-    const existing = await Product.findOne({ 'supplier.productId': supplierProductId });
+    // Check if already imported (supplierProductId already validated as string above)
+    const existing = await Product.findOne({ 'supplier.productId': supplierProductId.slice(0, 200) });
     if (existing) {
       return res.status(409).json({ error: 'Product already imported', product: existing });
     }
