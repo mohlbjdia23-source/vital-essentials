@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
@@ -19,6 +20,7 @@ export default function Checkout({ onBack }) {
   const stripe = useStripe()
   const elements = useElements()
   const { items, cartTotal, clearCart, setCartOpen } = useCart()
+  const { auth } = useAuth()
   const navigate = useNavigate()
 
   const [form, setForm] = useState({
@@ -33,6 +35,17 @@ export default function Checkout({ onBack }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  // Pre-fill name + email from logged-in account
+  useEffect(() => {
+    if (auth?.user) {
+      setForm((f) => ({
+        ...f,
+        name: f.name || auth.user.name || '',
+        email: f.email || auth.user.email || '',
+      }))
+    }
+  }, [auth])
+
   function handleChange(e) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
   }
@@ -46,6 +59,7 @@ export default function Checkout({ onBack }) {
 
     try {
       // Create payment intent on server – server calculates the verified total
+      const headers = auth?.token ? { Authorization: `Bearer ${auth.token}` } : {}
       const { data } = await axios.post('/api/checkout/create-payment-intent', {
         items: items.map((i) => ({ productId: i._id, quantity: i.quantity })),
         customer: { name: form.name, email: form.email },
@@ -58,7 +72,7 @@ export default function Checkout({ onBack }) {
           zip: form.zip,
           country: form.country,
         },
-      })
+      }, { headers })
 
       const cardElement = elements.getElement(CardElement)
       const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(

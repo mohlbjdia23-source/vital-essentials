@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import axios from 'axios'
+import { useAuth } from '../context/AuthContext'
 
 const STATUS_LABELS = {
   pending: 'Order Received',
@@ -29,6 +30,7 @@ const STATUS_COLOURS = {
 export default function OrderConfirmation() {
   const { state } = useLocation()
   const navOrder = state?.orderDetails
+  const { auth } = useAuth()
 
   const [liveOrder, setLiveOrder] = useState(null)
   const [loadingLive, setLoadingLive] = useState(false)
@@ -160,6 +162,21 @@ export default function OrderConfirmation() {
             <span>You'll receive tracking information once your order ships.</span>
           </div>
         </div>
+
+        {/* Create account nudge for guests */}
+        {!auth && order?.email && (
+          <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 mb-6 text-sm text-left">
+            <p className="font-semibold text-gray-800 mb-1">Save your details for next time</p>
+            <p className="text-gray-500 mb-3">Create a free account to track orders and check out faster.</p>
+            <Link
+              to="/account"
+              state={{ from: '/orders' }}
+              className="inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2 rounded-full text-sm transition-colors"
+            >
+              Create Account
+            </Link>
+          </div>
+        )}
 
         <Link
           to="/products"

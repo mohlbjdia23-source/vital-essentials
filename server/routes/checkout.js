@@ -73,7 +73,8 @@ async function calcServerTotal(items) {
 // ─── POST /api/checkout/create-payment-intent ──────────────────────────────
 
 router.post('/create-payment-intent', optionalAuth, async (req, res) => {
-  const { items, shippingAddress, customer, currency = 'usd' } = req.body;
+  const { items, shippingAddress, customer } = req.body;
+  const currency = 'usd'; // always USD; ignore any client-supplied value
 
   // Build customer object from body or logged-in user
   const customerData = {
@@ -128,11 +129,13 @@ router.post('/create-payment-intent', optionalAuth, async (req, res) => {
       country: shippingAddress?.country || 'US',
     };
 
+    let orderId;
     if (existingOrder) {
       existingOrder.stripePaymentIntentId = paymentIntent.id;
       await existingOrder.save();
+      orderId = existingOrder._id;
     } else {
-      await Order.create({
+      const newOrder = await Order.create({
         userId: req.user?.id,
         customer: customerData,
         shippingAddress: shippingAddr,
@@ -147,11 +150,12 @@ router.post('/create-payment-intent', optionalAuth, async (req, res) => {
         idempotencyKey,
         timeline: [{ status: 'pending', note: 'Order created, awaiting payment' }],
       });
+      orderId = newOrder._id;
     }
 
     res.json({
       clientSecret: paymentIntent.client_secret,
-      orderId: existingOrder?._id,
+      orderId,
       subtotal,
       shippingCost,
       totalPrice,

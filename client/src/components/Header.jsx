@@ -1,12 +1,27 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
 
 export default function Header() {
   const { cartCount, setCartOpen } = useCart()
+  const { auth, logout } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
+  const accountRef = useRef(null)
+
+  // Close account dropdown when clicking outside
+  useEffect(() => {
+    function handler(e) {
+      if (accountRef.current && !accountRef.current.contains(e.target)) {
+        setAccountOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   function handleSearch(e) {
     e.preventDefault()
@@ -74,8 +89,56 @@ export default function Header() {
             </div>
           </form>
 
-          {/* Cart + Hamburger */}
+          {/* Account + Cart + Hamburger */}
           <div className="flex items-center gap-3">
+            {/* Account button */}
+            <div className="relative hidden md:block" ref={accountRef}>
+              {auth ? (
+                <>
+                  <button
+                    onClick={() => setAccountOpen(!accountOpen)}
+                    className="flex items-center gap-1.5 text-gray-600 hover:text-emerald-600 transition-colors text-sm font-medium"
+                    aria-label="Account menu"
+                  >
+                    <div className="w-7 h-7 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center font-bold text-xs">
+                      {auth.user?.name?.[0]?.toUpperCase() || 'U'}
+                    </div>
+                    <span className="hidden lg:block max-w-[100px] truncate">{auth.user?.name?.split(' ')[0]}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {accountOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
+                      <Link
+                        to="/orders"
+                        onClick={() => setAccountOpen(false)}
+                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        My Orders
+                      </Link>
+                      <button
+                        onClick={() => { logout(); setAccountOpen(false) }}
+                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <Link
+                  to="/account"
+                  className="text-gray-600 hover:text-emerald-600 transition-colors"
+                  aria-label="Sign in"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A9 9 0 1 1 18.88 6.196M15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                  </svg>
+                </Link>
+              )}
+            </div>
+
             <button
               onClick={() => setCartOpen(true)}
               className="relative p-2 text-gray-600 hover:text-emerald-600 transition-colors"
@@ -135,6 +198,22 @@ export default function Header() {
               >
                 My Orders
               </Link>
+              {auth ? (
+                <button
+                  onClick={() => { logout(); setMenuOpen(false) }}
+                  className="text-left text-red-600 hover:text-red-700 font-medium px-2"
+                >
+                  Sign Out ({auth.user?.name?.split(' ')[0]})
+                </button>
+              ) : (
+                <Link
+                  to="/account"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-gray-700 hover:text-emerald-600 font-medium px-2"
+                >
+                  Sign In / Create Account
+                </Link>
+              )}
             </nav>
             <form onSubmit={handleSearch} className="mt-3 px-2">
               <div className="relative">
